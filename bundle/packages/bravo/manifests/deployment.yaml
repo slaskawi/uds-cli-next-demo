@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bravo
+  namespace: uds-next-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bravo
+  template:
+    metadata:
+      labels:
+        app: bravo
+        demo-message: "###ZARF_VAR_MESSAGE###"
+    spec:
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.10

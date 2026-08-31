@@ -1,0 +1,19 @@
+kind: ZarfPackageConfig
+metadata:
+  name: uds-next-alpha
+  version: 0.1.0
+  description: Tiny alpha workload for the UDS CLI Next demo
+components:
+  - name: alpha
+    required: true
+    images:
+      - registry.k8s.io/pause:3.10
+    manifests:
+      - name: workload
+        namespace: uds-next-demo
+        files:
+          - manifests/deployment.yaml
+variables:
+  - name: MESSAGE
+    default: alpha
+    prompt: false

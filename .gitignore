@@ -1,0 +1,4 @@
+.DS_Store
+.idea/
+bundle/uds-bundle-*.tar.zst
+bundle/packages/*/zarf-package-*.tar.zst
