@@ -10,18 +10,17 @@ uds() {
   command "$UDS_BIN" "$@"
 }
 
-UDS_BIN="$UDS_BIN" ./prepare.sh >/dev/null 2>&1
-#uds bundle create --unsigned bundle >/dev/null 2>&1
-
 commands=(
   'cat bundle/bundle.uds.hcl'
   'cat bundle/values/alpha.yaml bundle/values/bravo.yaml'
   'export CLI_FEATURES=NextMode=true'
+  'uds zarf package create bundle/packages/alpha --confirm --output bundle/packages/alpha'
+  'uds zarf package create bundle/packages/bravo --confirm --output bundle/packages/bravo'
   'uds bundle create --unsigned bundle'
   'uds bundle inspect bundle/uds-bundle-uds-next-demo-*-0.1.0.tar.zst'
   'uds bundle deploy --concurrency=2 --skip-signature-verification bundle/uds-bundle-uds-next-demo-*-0.1.0.tar.zst'
   'kubectl -n uds-next-demo get deployments,pods'
-  'uds bundle remove bundle'
+  '(cd bundle && uds bundle remove .)'
 )
 
 type_command() {
@@ -49,8 +48,5 @@ for index in "${!commands[@]}"; do
   type_command "$command"
   wait_for_space
   eval "$command"
-  if [[ "$index" == 2 ]]; then
-    rm -f $artifact
-  fi
   printf '\n'
 done

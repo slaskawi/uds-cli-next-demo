@@ -11,9 +11,6 @@ components:
     manifests:
       - name: workload
         namespace: uds-next-demo
+        template: true
         files:
           - manifests/deployment.yaml
-variables:
-  - name: MESSAGE
-    default: bravo
-    prompt: false

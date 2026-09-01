@@ -12,7 +12,7 @@ spec:
     metadata:
       labels:
         app: bravo
-        demo-message: "###ZARF_VAR_MESSAGE###"
+        demo-message: "{{ .Values.MESSAGE }}"
     spec:
       containers:
         - name: pause

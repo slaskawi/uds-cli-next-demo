@@ -27,21 +27,19 @@ CORE_BUNDLE=k3d-core-demo:<version> ./setup.sh
 UDS_BIN=/path/to/current/uds ./demo.sh
 ```
 
-Before a rehearsal, create the two local Zarf package artifacts:
-
-```bash
-./prepare.sh
-```
-
 Each Space press alternates between typing and running one command:
 
 1. Show `bundle/bundle.uds.hcl` and both values files.
-2. Inspect a prebuilt bundle artifact.
-3. Create an unsigned local artifact.
-4. Deploy it with `--concurrency=2`.
-5. Show both deployed workloads.
+2. Build the `alpha` package.
+3. Build the `bravo` package.
+4. Create an unsigned local bundle artifact.
+5. Inspect the artifact.
+6. Deploy it with `--concurrency=2`.
+7. Show both deployed workloads.
+8. Remove the demo packages.
 
-The runner exports `CLI_FEATURES=NextMode=true` once before calling UDS. It quietly creates an artifact before the presentation because `bundle inspect` accepts artifacts or OCI references, not source directories. It removes that artifact immediately after inspection, so the visible create command produces the deployed artifact.
+The runner exports `CLI_FEATURES=NextMode=true` once before calling UDS. Package builds are visible demo steps.
+The packages use Zarf Values only: their raw manifests enable Go templating and read `{{ .Values.MESSAGE }}` from the bundle values files.
 
 ## Why parallel deploy is visible
 
@@ -53,13 +51,13 @@ The runner exports `CLI_FEATURES=NextMode=true` once before calling UDS. It quie
 cat bundle/bundle.uds.hcl
 cat bundle/values/alpha.yaml bundle/values/bravo.yaml
 export CLI_FEATURES=NextMode=true
-./prepare.sh
+uds zarf package create bundle/packages/alpha --confirm --output bundle/packages/alpha
+uds zarf package create bundle/packages/bravo --confirm --output bundle/packages/bravo
 uds bundle create --unsigned bundle
 uds bundle inspect bundle/uds-bundle-uds-next-demo-*-0.1.0.tar.zst
-rm -f bundle/uds-bundle-uds-next-demo-*.tar.zst
-uds bundle create --unsigned bundle
 uds bundle deploy --concurrency=2 --skip-signature-verification bundle/uds-bundle-uds-next-demo-*-0.1.0.tar.zst
 kubectl -n uds-next-demo get deployments,pods
+(cd bundle && uds bundle remove .)
 ```
 
 The artifact glob selects the single architecture-specific artifact created on the laptop.
