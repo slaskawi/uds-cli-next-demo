@@ -1,1 +1,6 @@
-MESSAGE: alpha
+
+##
+## alpha.yaml
+##
+
+MESSAGE: {{ .vars.alpha_message }}

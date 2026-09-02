@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bravo
-  namespace: uds-next-demo
+  namespace: uds-next-bravo
 spec:
   replicas: 1
   selector:

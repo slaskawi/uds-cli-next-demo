@@ -27,44 +27,47 @@ CORE_BUNDLE=k3d-core-demo:<version> ./setup.sh
 UDS_BIN=/path/to/current/uds ./demo.sh
 ```
 
-Each Space press alternates between typing and running one command:
+Each Space or Enter press alternates between typing and running one command. Press either key while a command is typing to finish it immediately.
 
-1. Show `bundle/bundle.uds.hcl` and both values files.
-2. Build the `alpha` package.
-3. Build the `bravo` package.
-4. Create an unsigned local bundle artifact.
-5. Inspect the artifact.
-6. Deploy it with `--concurrency=2`.
-7. Show both deployed workloads.
+1. Show the bundle definition, artifact defaults, and values templates.
+2. Generate an ephemeral Cosign key pair with the bundled Zarf tool.
+3. Build and sign both packages in one stage.
+4. Create a signed local bundle artifact.
+5. Verify and inspect the artifact with its public key.
+6. Verify and concurrently deploy the artifact defaults.
+7. Show both deployed workloads and their resolved values.
 8. Remove the demo packages.
 
-The runner exports `CLI_FEATURES=NextMode=true` once before calling UDS. Package builds are visible demo steps.
-The packages use Zarf Values only: their raw manifests enable Go templating and read `{{ .Values.MESSAGE }}` from the bundle values files.
+The runner changes to `bundle/` before running its commands and exports `CLI_FEATURES=NextMode=true` once before calling UDS. At both `uds zarf tools gen-key` prompts, press Enter to create an empty-passphrase key used only by this demo; cleanup removes it. Both package builds run in one staged command.
+
+`defaults.uds.hcl` supplies both package messages. The values files render them with `{{ .vars.alpha_message }}` and `{{ .vars.bravo_message }}`, then the packages read `{{ .Values.MESSAGE }}`. The artifact stores `defaults.uds.hcl` as a bundle-definition OCI layer, and the final labels show those embedded values. Both package blocks verify the generated `cosign.pub` during bundle creation, and inspect reports the packages and bundle as signed.
 
 ## Why parallel deploy is visible
 
-`alpha` and `bravo` have no `depends_on` relationship in `bundle/bundle.uds.hcl`; both are in DAG level zero. `--concurrency=2` therefore starts both package deploys together. They share `registry.k8s.io/pause:3.10`, a very small public image, minimizing the first-pull delay.
+`alpha` and `bravo` have no `depends_on` relationship in `bundle/bundle.uds.hcl`; both are in DAG level zero. `--concurrency=2` therefore starts both package deploys together. They use separate namespaces, so Zarf creates each namespace without a shared-namespace race. They share `registry.k8s.io/pause:3.10`, a very small public image, minimizing the first-pull delay.
 
 ## Manual runbook
 
 ```bash
-cat bundle/bundle.uds.hcl
-cat bundle/values/alpha.yaml bundle/values/bravo.yaml
+cd bundle
+cat bundle.uds.hcl defaults.uds.hcl
+cat values/alpha.yaml values/bravo.yaml
 export CLI_FEATURES=NextMode=true
-uds zarf package create bundle/packages/alpha --confirm --output bundle/packages/alpha
-uds zarf package create bundle/packages/bravo --confirm --output bundle/packages/bravo
-uds bundle create --unsigned bundle
-uds bundle inspect bundle/uds-bundle-uds-next-demo-*-0.1.0.tar.zst
-uds bundle deploy --concurrency=2 --skip-signature-verification bundle/uds-bundle-uds-next-demo-*-0.1.0.tar.zst
-kubectl -n uds-next-demo get deployments,pods
-(cd bundle && uds bundle remove .)
+uds zarf tools gen-key
+uds zarf package create packages/alpha --confirm --output packages/alpha --signing-key cosign.key && uds zarf package create packages/bravo --confirm --output packages/bravo --signing-key cosign.key
+uds bundle create --signing-key cosign.key .
+uds bundle inspect --public-key cosign.pub uds-bundle-uds-next-demo-*-0.1.0.tar.zst
+uds bundle deploy --concurrency=2 --public-key cosign.pub uds-bundle-uds-next-demo-*-0.1.0.tar.zst
+kubectl -n uds-next-alpha get deployments,pods && kubectl -n uds-next-bravo get deployments,pods
+kubectl -n uds-next-alpha get deployment alpha -o custom-columns=NAME:.metadata.name,RESOLVED_MESSAGE:.spec.template.metadata.labels.demo-message && kubectl -n uds-next-bravo get deployment bravo -o custom-columns=NAME:.metadata.name,RESOLVED_MESSAGE:.spec.template.metadata.labels.demo-message
+uds bundle remove .
 ```
 
 The artifact glob selects the single architecture-specific artifact created on the laptop.
 
 ## Cleanup
 
-Remove only this demo's two Zarf releases, namespace, and generated artifacts:
+Remove only this demo's two Zarf releases, namespaces, and generated artifacts:
 
 ```bash
 ./cleanup.sh

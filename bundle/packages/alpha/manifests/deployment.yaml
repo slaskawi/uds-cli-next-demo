@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: alpha
-  namespace: uds-next-demo
+  namespace: uds-next-alpha
 spec:
   replicas: 1
   selector:

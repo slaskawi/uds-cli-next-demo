@@ -2,3 +2,5 @@
 .idea/
 bundle/uds-bundle-*.tar.zst
 bundle/packages/*/zarf-package-*.tar.zst
+bundle/cosign.key
+bundle/cosign.pub

@@ -10,7 +10,7 @@ components:
       - registry.k8s.io/pause:3.10
     manifests:
       - name: workload
-        namespace: uds-next-demo
+        namespace: uds-next-alpha
         template: true
         files:
           - manifests/deployment.yaml

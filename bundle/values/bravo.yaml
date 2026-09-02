@@ -1,1 +1,6 @@
-MESSAGE: bravo
+
+##
+## bravo.yaml
+##
+
+MESSAGE: {{ .vars.bravo_message }}
