@@ -28,7 +28,7 @@ type_command() {
   for ((index = 0; index < ${#text}; index++)); do
     character="${text:index:1}"
     printf '%s' "$character"
-    sleep 0.012
+    sleep 0.008
   done
   printf '\n'
 }
@@ -40,7 +40,8 @@ wait_for_space() {
   done
 }
 
-printf 'UDS CLI Next demo. Press Space to type; press Space again to run. Ctrl-C exits.\n\n'
+clear
+printf '\n\nUDS CLI Next demo. Press Space to type; press Space again to run. Ctrl-C exits.\n\n'
 for index in "${!commands[@]}"; do
   command="${commands[$index]}"
   printf '🦄 $ '

@@ -8,7 +8,6 @@ metadata {
   version     = "0.1.0"
 }
 
-# No dependency edge: these two packages share DAG level zero and deploy in parallel.
 package "alpha" {
   source       = "./packages/alpha/zarf-package-uds-next-alpha-${sys.arch}-0.1.0.tar.zst"
   values_files = ["values/alpha.yaml"]
