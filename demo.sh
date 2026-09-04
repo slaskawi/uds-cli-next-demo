@@ -68,11 +68,10 @@ cat <<'EOF'
 EOF
 printf '\n\nUDS CLI contains the Better Bundles™ implementation with the following capabilities:\n'
 printf '\033[34m\n'
-printf '  1. HCL-native composition — locals, templates, variables, dependencies\n'
-printf '  2. One CLI — author, verify, deploy, and operate\n'
-printf '  3. Secure by construction — verify packages, sign the full bundle\n'
-printf '  4. Defaults that travel — deploy-ready config lives in the artifact\n'
-printf '  5. Fast and safe — concurrent deploys with dependency DAG ordering\n'
+printf '  1. HCL-native syntax — locals, templates, variables, dependencies\n'
+printf '  2. One CLI for the entire workflow — author, verify, deploy, and operate\n'
+printf '  3. Secure by default — verify packages, sign the full bundle\n'
+printf '  4. Fast and safe — concurrent deploys with dependency DAG ordering\n'
 printf '\033[0m\n'
 for index in "${!commands[@]}"; do
   command="${commands[$index]}"
